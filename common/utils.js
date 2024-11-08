@@ -6,17 +6,28 @@ utils.flaggedUsers = [
     1664485938220
 ];
 
+utils.styles = {
+    car: { color: 'gray', text: '🚗' },
+    fish: { color: 'red', text: '🐠' },
+    house: { color: 'yellow', text: '🏠' },
+    tree: { color: 'green', text: '🌳' },
+    bicycle: { color: 'cyan', text: '🚲' },
+    guitar: { color: 'blue', text: '🎸' },
+    pencil: { color: 'magenta', text: '✏️' },
+    clock: { color: 'lightgray', text: '🕒' },
+};
+
 utils.formatPercent = (n) => {
-    return (n*100).toFixed(2);
+    return (n * 100).toFixed(2);
 }
 
 utils.printProgress = (count, max) => {
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
-    const percent = utils.formatPercent (
+    const percent = utils.formatPercent(
         count / max
     );
-    process.stdout.write( count + "/" + max + " (" + percent + "%)");
+    process.stdout.write(count + "/" + max + " (" + percent + "%)");
 }
 
 utils.groupBy = (objArray, key) => {
@@ -24,14 +35,14 @@ utils.groupBy = (objArray, key) => {
     for (let obj of objArray) {
         const val = obj[key];
         // If the student is just identified, we don't have any drawing from this student
-        if(groups[val] == null) {
+        if (groups[val] == null) {
             groups[val] = [];
         }
-        groups[val].push(obj);    
+        groups[val].push(obj);
     }
     return groups;
 }
 
-if(typeof module !== 'undefined') {
+if (typeof module !== 'undefined') {
     module.exports = utils;
 }

@@ -60,3 +60,20 @@ button:disabled,button:disabled:hover {
 .blur {
     filter: blur(5px);
 }
+
+.emphasize {
+    background-color: yellow;
+}
+
+#container {
+     /* 1005 the width of the chart  */
+    width: calc(100% - 500px);
+}
+
+#chartContainer { 
+    position: fixed;
+    right: 0;
+    top: 50%;
+    /* Not to show the top of the chart to 50% of the screen, but the middle of the chart */
+    transform: translate(0, -50%);
+}
