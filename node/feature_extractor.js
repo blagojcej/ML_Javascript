@@ -1,5 +1,5 @@
 const constants = require('../common/constants.js');
-const features = require('../common/features.js');
+const featureFunctions = require('../common/featureFunctions.js');
 
 const fs = require('fs');
 
@@ -16,18 +16,26 @@ for (const sample of samples) {
             constants.JSON_DIR + "/" + sample.id + ".json"
         )
     );
+
+    // Get feature functions
+    const functions = featureFunctions.inUse.map(f => f.function);
+
     // extract features
-    sample.point = [
-        features.getPathCount(paths),
-        features.getPointCount(paths)
-    ];
+    sample.point = functions.map(f => f(paths));
+    // After implementing `getWith` and `getheight` feature function we don't need below functions
+    // sample.point = [
+    //     featureFunctions.getPathCount(paths),
+    //     featureFunctions.getPointCount(paths)
+    // ];
 }
 
 // Add labels to the features
-const featureNames = [
-    "Path Count",
-    "Point Count"
-];
+const featureNames = featureFunctions.inUse.map(f => f.name);
+// Get feature names from the featureFunctions.inUse array
+// const featureNames = [
+//     "Path Count",
+//     "Point Count"
+// ];
 
 fs.writeFileSync(constants.FEATURES,
     JSON.stringify({
@@ -42,7 +50,7 @@ fs.writeFileSync(constants.FEATURES,
 );
 
 fs.writeFileSync(constants.FEATURES_JS,
-    `const features = ${JSON.stringify({featureNames,samples})};`
+    `const features = ${JSON.stringify({ featureNames, samples })};`
 );
 
 console.log("DONE");

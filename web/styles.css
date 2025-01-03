@@ -77,3 +77,27 @@ button:disabled,button:disabled:hover {
     /* Not to show the top of the chart to 50% of the screen, but the middle of the chart */
     transform: translate(0, -50%);
 }
+
+#inputContainer {
+    position: fixed;
+    right: 500px;
+    top: 50%;
+    transform: translate(0, -50%);;
+    text-align: center;
+    margin: 10px;
+}
+
+#controlPanel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 500px;
+    text-align: center;
+    padding: 10px;
+}
+
+#predictedLabelContainer {
+    color: white;
+    font-size: 30px;
+    position: relative;
+}

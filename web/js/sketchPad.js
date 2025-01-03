@@ -1,5 +1,5 @@
 class SketchPad {
-    constructor(container, size = 400) {
+    constructor(container, onUpdate = null, size = 400) {
         // Create a canvas element
         this.canvas = document.createElement("canvas");
         // Add the canvas width and height attributes
@@ -25,6 +25,7 @@ class SketchPad {
         // Get the canvas context - 2d drawing canvas
         this.ctx = this.canvas.getContext("2d");
 
+        this.onUpdate = onUpdate;
         this.reset();
 
         // Listening for a private (a hash symbol) events in the container/canvas
@@ -96,6 +97,14 @@ class SketchPad {
             this.undoBtn.disabled = false;
         } else {
             this.undoBtn.disabled = true;
+        }
+
+        this.triggerUpdate();
+    }
+
+    triggerUpdate() {
+        if (this.onUpdate) {
+            this.onUpdate(this.paths);
         }
     }
 
