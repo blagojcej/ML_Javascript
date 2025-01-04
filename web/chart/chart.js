@@ -30,10 +30,10 @@ class Chart {
       };
 
       this.hoveredSample = null;
-      this.selectedSample = null;
+      this.selectedSamples = null;
 
       this.dynamicPoint = null;
-      this.nearestSample = null;
+      this.nearestSamples = null;
 
       this.pixelBounds = this.#getPixelBounds();
       this.dataBounds = this.#getDataBounds();
@@ -44,9 +44,9 @@ class Chart {
       this.#addEventListeners();
    }
 
-   showDynamicPoint(point, label, nearestSample) {
+   showDynamicPoint(point, label, nearestSamples) {
       this.dynamicPoint = { point, label };
-      this.nearestSample = nearestSample;
+      this.nearestSamples = nearestSamples;
       this.#draw();
    }
 
@@ -255,6 +255,7 @@ class Chart {
 
       if (this.dynamicPoint) {
          const { point, label } = this.dynamicPoint;
+
          const pixelLoc = math.remapPoint(
             this.dataBounds,
             this.pixelBounds,
@@ -262,21 +263,28 @@ class Chart {
          );
          graphics.drawPoint(ctx, pixelLoc, "rgba(255,255,255,0.7)", 10000000);
 
-         // Draw a line to the nearest sample
-         ctx.beginPath();
-         ctx.moveTo(...pixelLoc);
-         ctx.lineTo(...math.remapPoint(
-            this.dataBounds,
-            this.pixelBounds,
-            this.nearestSample.point,
+         // Draw line to all nearest samples
+         for (const sample of this.nearestSamples) {
+            // Extract the point of the current sample
+            const point = math.remapPoint(
+               this.dataBounds,
+               this.pixelBounds,
+               sample.point
+            );
 
-         ));
-         ctx.stroke();
+            // Draw a line to the nearest sample
+            ctx.beginPath();
+            ctx.moveTo(...pixelLoc);
+            ctx.lineTo(...point);
+            ctx.stroke();
+         }
 
-         graphics.drawImage(ctx,
-            this.styles[label].image,
-            pixelLoc
-         );
+         if (this.styles[label] && this.styles[label].image) {
+            graphics.drawImage(ctx,
+               this.styles[label].image,
+               pixelLoc
+            );
+         }
       }
 
       this.#drawAxes();

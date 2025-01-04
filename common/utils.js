@@ -50,7 +50,9 @@ utils.distance = (p1, p2) => {
     );
 }
 
-utils.getNearest = (loc, points) => {
+utils.getNearest = (loc, points, k = 1) => {
+    /* Used before we've implemented the k value
+
     // Set the min distance value as maximum integer value
     let minDist = Number.MAX_SAFE_INTEGER;
     // nearest element index is 0
@@ -72,6 +74,25 @@ utils.getNearest = (loc, points) => {
         }
     }
     return nearestIndex;
+    
+    */
+
+    // Get objects from our data points
+    const obj = points.map((val, ind) => {
+        return {ind, val};
+    });
+
+    // Sort the `obj` values
+    // Sort in the way that the nearest one is the first
+    const sorted = obj.sort((a, b) => {
+        return utils.distance(loc, a.val) - utils.distance(loc, b.val);
+    });
+
+    // Get only the indexes
+    const indices = sorted.map((obj) => obj.ind);
+
+    // Return the k nearest values (By default its the first one)
+    return indices.slice(0, k);
 }
 
 utils.invLerp = (a, b, v) => {
