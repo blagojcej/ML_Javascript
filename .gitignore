@@ -6,3 +6,5 @@
 .vscode/**
 node/node_modules
 data
+
+.codegpt

@@ -1,5 +1,6 @@
 const constants = require('../common/constants.js');
 const featureFunctions = require('../common/featureFunctions.js');
+const utils = require('../common/utils.js');
 
 const fs = require('fs');
 
@@ -8,6 +9,8 @@ console.log("EXTRACTING FEATURES...");
 const samples = JSON.parse(
     fs.readFileSync(constants.SAMPLES)
 );
+// Load all samples by excluding outlier points
+// ).filter( s => s.id != 3107);
 
 for (const sample of samples) {
     // Find features in files
@@ -28,6 +31,10 @@ for (const sample of samples) {
     //     featureFunctions.getPointCount(paths)
     // ];
 }
+
+const minMax = utils.normalizePoints(
+    samples.map(s => s.point)
+);
 
 // Add labels to the features
 const featureNames = featureFunctions.inUse.map(f => f.name);
@@ -51,6 +58,11 @@ fs.writeFileSync(constants.FEATURES,
 
 fs.writeFileSync(constants.FEATURES_JS,
     `const features = ${JSON.stringify({ featureNames, samples })};`
+);
+
+// Write the min and max normalized values in one of the JS files so we can reuse them to the drawing canvas
+fs.writeFileSync(constants.MIN_MAX_JS,
+    `const minMax= ${JSON.stringify(minMax)};`
 );
 
 console.log("DONE");

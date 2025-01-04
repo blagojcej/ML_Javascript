@@ -74,6 +74,80 @@ utils.getNearest = (loc, points) => {
     return nearestIndex;
 }
 
+utils.invLerp = (a, b, v) => {
+    return (v - a) / (b - a);
+}
+
+// Change the points values to be between 0 and 1
+utils.normalizePoints = (points, minMax) => {
+    // Two dimensions
+    let min, max;
+
+    // Extract dimensions
+    const dimensions = points[0].length;
+
+    // If we're passing min and max values as a function paramater, we don't need to calculate them
+    if (minMax) {
+        min = minMax.min;
+        max = minMax.max;
+    } else {
+        // Create a new array with values so we can not accidentally change them later
+        // Set the values of the first point at the beginning
+        min = [...points[0]];
+        max = [...points[0]];
+
+        for (let i = 1; i < points.length; i++) {
+            // Loop through dimensions
+            for (let j = 0; j < dimensions; j++) {
+                // Get the minimum value of the current point (i) and the current dimension of the current poin (j)
+                min[j] = Math.min(min[j], points[i][j]);
+                max[j] = Math.max(max[j], points[i][j]);
+            }
+        }
+    }
+
+    // Transform our data by iterating through all points
+    for (let i = 0; i < points.length; i++) {
+        // Loop through all dimensions in each point
+        for (let j = 0; j < dimensions; j++) {
+            // Modify values of each point to be between 0 and 1
+            // by substracting the minimum value and divide the difference (the Inverse Lerp function)
+            // Between min and max for the current dimension covert it to percentage
+            points[i][j] = utils.invLerp(min[j], max[j], points[i][j]);
+        }
+    }
+
+    return { min, max };
+}
+
+utils.normalizePointsStd = (points) => {
+    console.log(points);
+    const dimensions = points[0].length;
+    for (let i = 0; i < points.length; i++) {
+        for (let j = 0; j < dimensions; j++) {
+            points[i][j] =
+                points[i][j] - utils.mean(...points.map((p) => p[j])) / utils.standardDeviation(...points.map((p) => p[j]));
+        }
+    }
+};
+
+utils.mean = (...inputs) => {
+    let sum = 0;
+    for (let input of inputs) {
+        sum += input;
+    }
+    return sum / inputs.length;
+};
+
+utils.standardDeviation = (...inputs) => {
+    const m = utils.mean(...inputs);
+    let sum = 0;
+    for (let input of inputs) {
+        sum += (input - m) ** 2;
+    }
+    return Math.sqrt(sum / (inputs.length - 1));
+};
+
 if (typeof module !== 'undefined') {
     module.exports = utils;
 }

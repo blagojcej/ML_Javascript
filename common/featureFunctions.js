@@ -28,11 +28,11 @@ featureFunctions.getHeight = (paths) => {
 }
 
 featureFunctions.inUse = [
-    { name: "Path count", function: featureFunctions.getPathCount },
-    { name: "Point count", function: featureFunctions.getPointCount },
+    // { name: "Path count", function: featureFunctions.getPathCount },
+    // { name: "Point count", function: featureFunctions.getPointCount },
     // We're not calling these functions here, we're just passing them 
-    // {name: "Width", function: featureFunctions.getWidth},
-    // {name: "Height", function: featureFunctions.getHeight},
+    {name: "Width", function: featureFunctions.getWidth},
+    {name: "Height", function: featureFunctions.getHeight},
 ];
 
 if (typeof module !== 'undefined') {
