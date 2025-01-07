@@ -32,10 +32,6 @@ for (const sample of samples) {
     // ];
 }
 
-const minMax = utils.normalizePoints(
-    samples.map(s => s.point)
-);
-
 // Add labels to the features
 const featureNames = featureFunctions.inUse.map(f => f.name);
 // Get feature names from the featureFunctions.inUse array
@@ -43,6 +39,39 @@ const featureNames = featureFunctions.inUse.map(f => f.name);
 //     "Path Count",
 //     "Point Count"
 // ];
+
+// Split examples
+console.log("GENERATING SPLITS...");
+
+// Set the training amount of items to 50%
+const trainingAmount = samples.length * 0.5;
+
+// Define empty array for training and testing data
+const training = [];
+const testing = [];
+
+// Loop through all samples
+for (let i = 0; i < samples.length; i++) {
+    // If iterator is less than the training amount value
+    if (i < trainingAmount) {
+        // add the current element to the training set
+        // the first half of samples will be the training set
+        training.push(samples[i]);
+    } else {
+        // the sedond half will be the testing set
+        testing.push(samples[i]);
+    }
+}
+
+const minMax = utils.normalizePoints(
+    // Normalize all data
+    // samples.map(s => s.point)
+    // Normalize only the training data
+    training.map(t => t.point)
+);
+
+// Normalize the testing data using the minMax values from the training data
+utils.normalizePoints(testing.map(t => t.point), minMax);
 
 fs.writeFileSync(constants.FEATURES,
     JSON.stringify({
@@ -58,6 +87,38 @@ fs.writeFileSync(constants.FEATURES,
 
 fs.writeFileSync(constants.FEATURES_JS,
     `const features = ${JSON.stringify({ featureNames, samples })};`
+);
+
+fs.writeFileSync(constants.TRAINING,
+    JSON.stringify({
+        featureNames,
+        samples: training.map(s => {
+            return {
+                point: s.point,
+                label: s.label
+            }
+        })
+    })
+);
+
+fs.writeFileSync(constants.TRAINING_JS,
+    `const training = ${JSON.stringify({ featureNames, samples: training })};`
+);
+
+fs.writeFileSync(constants.TESTING,
+    JSON.stringify({
+        featureNames,
+        samples: testing.map(s => {
+            return {
+                point: s.point,
+                label: s.label
+            }
+        })
+    })
+);
+
+fs.writeFileSync(constants.TESTING_JS,
+    `const testing = ${JSON.stringify({ featureNames, samples: testing })};`
 );
 
 // Write the min and max normalized values in one of the JS files so we can reuse them to the drawing canvas

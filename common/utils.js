@@ -16,6 +16,7 @@ utils.styles = {
     pencil: { color: 'magenta', text: '✏️' },
     clock: { color: 'lightgray', text: '🕒' },
 };
+utils.styles["?"] = { color: 'red', text: '❓'};
 
 utils.formatPercent = (n) => {
     return (n * 100).toFixed(2);

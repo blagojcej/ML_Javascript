@@ -15,9 +15,12 @@
    <div id="chartContainer"></div>
    <div id="controlPanel">
       <button onClick="toggleInput()">Toggle Input</button>
+      <div id="statistics"></div>
    </div>
    <div id="container"></div>
    <script src="../common/js_objects/features.js"></script>
+   <script src="../common/js_objects/training.js"></script>
+   <script src="../common/js_objects/testing.js"></script>
    <script src="../common/js_objects/minMax.js"></script>
 
    <script src="../common/constants.js"></script>
@@ -36,10 +39,64 @@
    <script>
       // read the data and the labels from the extracted/generated `features` file
       const { samples, featureNames } = features;
-      const groups = utils.groupBy(samples, "student_id");
+      const trainingSamples = training.samples;
+      const testingSamples = testing.samples;
 
-      for (let student_id in groups) {
-         const samples = groups[student_id];
+      const k = 50;
+
+      // Count how many times we're correct
+      let correctCount = 0;
+      // Count how many items we have in total
+      let totalCount = 0;
+
+      // WE'LL PRETEND THAT WE DON'T KNOW LABELS IN TESTING SAMPLES
+      for (const testingSample of testingSamples) {
+         // Store the testing sample label in a new variable called `truth`
+         // We'll need this attribute when we're calculating the accuracy
+         testingSample.truth = testingSample.label;
+         // Set the testing sample label as a question mark
+         testingSample.label = "?";
+
+         // classify the testing set
+         const { label } = classify(trainingSamples, testingSample.point);
+         testingSample.label = label;
+         testingSample.correct = testingSample.label == testingSample.truth;
+
+         // Increase the total count for each item
+         totalCount++;
+
+         // Increase the correct count if the correct attribute is set
+         correctCount += testingSample.correct ? 1 : 0;
+      }
+
+      statistics.innerHTML = "<b>ACCURACY</b><br>" +
+         correctCount + "/" + totalCount + " (" +
+         utils.formatPercent(correctCount / totalCount) + ")";
+
+      // Creating drawing rows for each student 
+      // const groups = utils.groupBy(samples, "student_id");
+      // for (let student_id in groups) {
+      //    const samples = groups[student_id];
+      //    const studentName = samples[0].student_name;
+      //    createRow(container, studentName, samples);
+      // }
+
+      // Creating drawing rows for each student training data
+      const trainingGroups = utils.groupBy(trainingSamples, "student_id");
+      for (let student_id in trainingGroups) {
+         const samples = trainingGroups[student_id];
+         const studentName = samples[0].student_name;
+         createRow(container, studentName, samples);
+      }
+
+      const subtitle = document.createElement("h2");
+      subtitle.innerHTML = "TESTING DATA";
+      container.appendChild(subtitle);
+
+      // Creating drawing rows for each student testing data
+      const testingGroups = utils.groupBy(testingSamples, "student_id");
+      for (let student_id in testingGroups) {
+         const samples = testingGroups[student_id];
          const studentName = samples[0].student_name;
          createRow(container, studentName, samples);
       }
@@ -54,10 +111,20 @@
 
       graphics.generateImages(utils.styles);
 
-      const chart = new Chart(chartContainer, samples, options, handleClick);
+      const chart = new Chart(
+         chartContainer,
+         // Visualize all sample rows
+         // samples, 
+         // Visualize all training samples
+         trainingSamples,
+         options,
+         handleClick
+      );
 
       const sketchPad = new SketchPad(inputContainer, onDrawingUpdate);
       sketchPad.canvas.style.cssText += "outline:10000px solid rgba(0,0,0,0.7);";
+      // Hide the input after implementing training and testing sets
+      toggleInput();
 
       // Extract the features in the same way like in the feature extractor (feature_extractor.js)
       function onDrawingUpdate(paths) {
@@ -71,7 +138,8 @@
          //    featureFunctions.getPathCount(paths),
          //    featureFunctions.getPointCount(paths)
          // ];
-         const { label, nearestSamples } = classify(point);
+         // const { label, nearestSamples } = classify(samples, point);
+         const { label, nearestSamples } = classify(trainingSamples, point);
          predictedLabelContainer.innerHTML =
             "Is it a " + label + "?";
 
@@ -79,10 +147,10 @@
 
       }
 
-      function classify(point) {
-         const samplePoints = samples.map(s => s.point);
-         const indices = utils.getNearest(point, samplePoints, 10);
-         const nearestSamples = indices.map(i => samples[i]);
+      function classify(c_samples, point) {
+         const samplePoints = c_samples.map(s => s.point);
+         const indices = utils.getNearest(point, samplePoints, k);
+         const nearestSamples = indices.map(i => c_samples[i]);
          const labels = nearestSamples.map(s => s.label);
 
          // Calculate how many times the same label is marked as a nearest neighbor
